@@ -1,0 +1,20 @@
+# ESPHome
+/secrets.yaml
+/.esphome/
+*.log
+
+# Python (si jamais tu utilises l’ESPHome CLI)
+/.venv/
+/__pycache__/
+/*.pyc
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# 3D files générés
+*.3mf~
+*.step~
+*.stl~
