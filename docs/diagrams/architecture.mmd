@@ -1,0 +1,5 @@
+flowchart LR
+  MQ135 -- A0 --> MCU[ESP8266]
+  BME280 -- I2C SDA/SCL --> MCU
+  MCU -- I2C --> OLED[SSD1306 128x64]
+  MCU -- Wi-Fi --> HA[Home Assistant]

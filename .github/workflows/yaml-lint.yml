@@ -1,0 +1,9 @@
+name: esp-home-yaml-check
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate YAML
+        uses: ibiqlik/action-yamllint@v3

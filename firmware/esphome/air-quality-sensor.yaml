@@ -1,0 +1,105 @@
+esphome:
+  name: qualite-air
+  friendly_name: Qualité Air
+
+esp8266:
+  board: esp01_1m
+
+logger:
+
+api:
+  encryption:
+    key: "api_key"
+
+ota:
+  - platform: esphome
+    password: "ota_password"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "Qualite-Air Fallback Hotspot"
+    password: "ap_password"
+
+captive_portal:
+
+# Ajout du support web (facultatif)
+web_server:
+
+i2c:
+  sda: GPIO4 # D2
+  scl: GPIO5 # D1
+  scan: true
+
+sensor:
+  - platform: bme280_i2c
+    temperature:
+      name: "Température"
+      id: temp_c
+      filters:
+        - offset: -6
+    pressure:
+      name: "Pression"
+      id: pressure_hpa
+    humidity:
+      name: "Humidité"
+      id: humid_percent
+    address: 0x76
+    update_interval: 10s
+
+  - platform: adc
+    pin: A0
+    name: "MQ-135 Voltage"
+    id: mq135_voltage
+    update_interval: 10s
+
+text_sensor:
+  - platform: template
+    name: "Qualité de l'air"
+    id: air_quality_text
+
+interval:
+  - interval: 10s
+    then:
+      - lambda: |-
+          float voltage = id(mq135_voltage).state;
+          std::string quality;
+          if (voltage < 0.35) quality = "Excellent";
+          else if (voltage < 0.55) quality = "Bonne";
+          else if (voltage < 0.75) quality = "Moyenne";
+          else quality = "Mauvaise";
+          id(air_quality_text).publish_state(quality);
+
+display:
+  - platform: ssd1306_i2c
+    id: oled_display
+    model: "SSD1306 128x64"
+    address: 0x3C
+    flip_x: true
+    flip_y: true
+    lambda: |-
+      it.print(0, 0, id(my_font_small), TextAlign::TOP_LEFT, (String((int) id(pressure_hpa).state) + " hPa").c_str());
+      it.printf(64, 20, id(my_font_small), TextAlign::TOP_CENTER, "%s (%.2fV)", id(air_quality_text).state.c_str(), id(mq135_voltage).state);
+      it.printf(0, 42, id(my_font_large), TextAlign::TOP_LEFT, "%d°C", (int) id(temp_c).state);
+      it.printf(128, 42, id(my_font_large), TextAlign::TOP_RIGHT, "%d%%", (int) id(humid_percent).state);
+
+font:
+  - id: my_font_small
+    size: 10
+    file: "gfonts://Roboto"
+  - id: my_font_large
+    size: 20
+    file: "gfonts://Roboto"
+
+switch:
+  - platform: template
+    name: "qualité d'air"
+    id: oled_switch
+    optimistic: true
+    turn_on_action:
+      - lambda: |-
+          id(oled_display).turn_on();
+    turn_off_action:
+      - lambda: |-
+          id(oled_display).turn_off();

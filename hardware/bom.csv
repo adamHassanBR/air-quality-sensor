@@ -1,0 +1,7 @@
+Ref,Composant,Qté,Notes/Lien
+MCU,ESP8266 Wemos D1 mini,1,
+S1,BME280 I2C (0x76),1,
+S2,MQ-135 module analogique,1,
+D1,OLED SSD1306 128x64 I2C (0x3C),1,
+BOX,Boîtier 3D,1,STEP + 3MF fournis
+Câbles,Dupont/Micro-USB,1,
